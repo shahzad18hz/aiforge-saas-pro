@@ -52,5 +52,10 @@
   },
   "devDependencies": {
     "tsx": "^4.15.0"
+  },
+  "overrides": {
+    "@next-auth/mongodb-adapter": {
+      "mongodb": "$mongodb"
+    }
   }
 }
