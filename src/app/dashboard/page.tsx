@@ -158,7 +158,10 @@ export default function DashboardPage() {
                   const meta = TOOL_META[item.toolType];
                   const Icon = meta.icon;
                   return (
-                    <div key={item._id} className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
+                    <div
+                      key={item._id.toString()}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors"
+                    >
                       <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                         <Icon className={`w-4 h-4 ${meta.color}`} />
                       </div>

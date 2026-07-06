@@ -33,12 +33,20 @@ export default function AdminUsersPage() {
     setEditRole(user.role);
   };
 
-  const handleUpdate = async () => {
-    if (!editUser) return;
-    await updateUser.mutateAsync({ userId: editUser._id, updates: { credits: editCredits, plan: editPlan, role: editRole } });
-    setEditUser(null);
-  };
+ const handleUpdate = async () => {
+  if (!editUser) return;
 
+  await updateUser.mutateAsync({
+    userId: String(editUser._id),
+    updates: {
+      credits: editCredits,
+      plan: editPlan,
+      role: editRole,
+    },
+  });
+
+  setEditUser(null);
+};
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -85,7 +93,10 @@ export default function AdminUsersPage() {
                 </thead>
                 <tbody>
                   {data.users.map(user => (
-                    <tr key={user._id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                  <tr
+  key={String(user._id)}
+  className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors"
+>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
@@ -178,4 +189,4 @@ export default function AdminUsersPage() {
       </Modal>
     </div>
   );
-}
+};
