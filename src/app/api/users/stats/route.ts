@@ -9,18 +9,37 @@ import { PLANS } from "@/types";
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
     await connectDB();
+
     const [user, monthUsage, totalHistoryCount] = await Promise.all([
       User.findById(session.user.id),
-      Usage.findOne({ userId: session.user.id, month: getMonthKey() }),
-      History.countDocuments({ userId: session.user.id }),
+      Usage.findOne({
+        userId: session.user.id,
+        month: getMonthKey(),
+      }),
+      History.countDocuments({
+        userId: session.user.id,
+      }),
     ]);
 
-    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
 
-    const planCredits = PLANS[user.plan].credits;
+    // ✅ Fix TypeScript Error
+    const plan = (user.plan as keyof typeof PLANS) || "free";
+    const planCredits = PLANS[plan].credits;
 
     return NextResponse.json({
       success: true,
@@ -29,13 +48,17 @@ export async function GET(req: NextRequest) {
         creditsUsed: user.totalCreditsUsed,
         creditsRemaining: user.credits,
         totalGenerations: totalHistoryCount,
-        thisMonthGenerations: monthUsage?.generationsCount || 0,
-        plan: user.plan,
-        toolBreakdown: monthUsage?.toolBreakdown || {},
+        thisMonthGenerations: monthUsage?.generationsCount ?? 0,
+        plan,
+        toolBreakdown: monthUsage?.toolBreakdown ?? {},
       },
     });
   } catch (error) {
     console.error("Stats error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
