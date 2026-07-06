@@ -75,7 +75,7 @@ export default function AdminSubscriptionsPage() {
                 </thead>
                 <tbody>
                   {proUsers.map(user => (
-                    <tr key={user._id} className="border-b border-border last:border-0 hover:bg-muted/20">
+                    <tr key={user._id.toString()} className="border-b border-border last:border-0 hover:bg-muted/20">
                       <td className="py-3 px-2">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center text-white text-xs font-bold">
@@ -92,10 +92,10 @@ export default function AdminSubscriptionsPage() {
                       <td className="py-3 px-2 text-muted-foreground">{user.totalCreditsUsed}</td>
                       <td className="py-3 px-2">
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline" loading={updateUser.isPending} onClick={() => handleRefreshCredits(user._id)}>
+                          <Button size="sm" variant="outline" loading={updateUser.isPending} onClick={() => handleRefreshCredits(user._id.toString())}>
                             <RefreshCw className="w-3.5 h-3.5" /> Refresh
                           </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleRevokePro(user._id)}>
+                          <Button size="sm" variant="destructive" onClick={() => handleRevokePro(user._id.toString())}>
                             Revoke
                           </Button>
                         </div>
