@@ -5,6 +5,7 @@ import connectDB from "@/lib/mongodb";
 import { User, History, Usage } from "@/lib/models";
 import { getMonthKey } from "@/lib/utils";
 import { PLANS, IUser, IUsage } from "@/types";
+import mongoose from "mongoose"; // 1. Yeh import add karein
 
 export async function GET(req: NextRequest) {
   try {
@@ -19,14 +20,17 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
 
+    // 2. String ID ko Mongoose ObjectId mein convert karein
+    const objectId = new mongoose.Types.ObjectId(session.user.id);
+
     const [dbUser, dbUsage, totalHistoryCount] = await Promise.all([
-      User.findById(session.user.id).lean(),
+      User.findById(objectId).lean(), // session.user.id ki jagah objectId use karein
       Usage.findOne({
-        userId: session.user.id,
+        userId: objectId, // session.user.id ki jagah objectId use karein
         month: getMonthKey(),
       }).lean(),
       History.countDocuments({
-        userId: session.user.id,
+        userId: objectId, // session.user.id ki jagah objectId use karein
       }),
     ]);
 
