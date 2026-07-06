@@ -116,7 +116,10 @@ export default function AdminDashboardPage() {
                 </thead>
                 <tbody>
                   {stats?.recentUsers?.map(user => (
-                    <tr key={user._id} className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                  <tr
+  key={user._id.toHexString()}
+  className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
+>
                       <td className="py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">

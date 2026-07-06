@@ -1,5 +1,5 @@
 import { DefaultSession, DefaultUser } from "next-auth";
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 // ─── NextAuth Extensions ───────────────────────────────────────────────────
 declare module "next-auth" {
@@ -11,6 +11,7 @@ declare module "next-auth" {
       credits: number;
     } & DefaultSession["user"];
   }
+
   interface User extends DefaultUser {
     role: "user" | "admin";
     plan: "free" | "pro";
@@ -20,7 +21,7 @@ declare module "next-auth" {
 
 // ─── User ──────────────────────────────────────────────────────────────────
 export interface IUser extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   name: string;
   email: string;
   password?: string;
@@ -39,12 +40,17 @@ export interface IUser extends Document {
 
 // ─── Subscription ──────────────────────────────────────────────────────────
 export interface ISubscription extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   userId: string;
   stripeSubscriptionId: string;
   stripeCustomerId: string;
   stripePriceId: string;
-  status: "active" | "canceled" | "past_due" | "trialing" | "incomplete";
+  status:
+    | "active"
+    | "canceled"
+    | "past_due"
+    | "trialing"
+    | "incomplete";
   plan: "free" | "pro";
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
@@ -62,7 +68,7 @@ export type ToolType =
   | "seo-meta";
 
 export interface IHistory extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   userId: string;
   toolType: ToolType;
   prompt: string;
@@ -74,9 +80,9 @@ export interface IHistory extends Document {
 
 // ─── Usage ─────────────────────────────────────────────────────────────────
 export interface IUsage extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   userId: string;
-  month: string; // "2024-01"
+  month: string;
   creditsUsed: number;
   generationsCount: number;
   toolBreakdown: Record<ToolType, number>;
@@ -126,7 +132,12 @@ export interface SocialMediaInput {
 }
 
 export interface EmailGeneratorInput {
-  type: "cold-outreach" | "follow-up" | "newsletter" | "promotional" | "welcome";
+  type:
+    | "cold-outreach"
+    | "follow-up"
+    | "newsletter"
+    | "promotional"
+    | "welcome";
   subject: string;
   recipientName?: string;
   senderName: string;
@@ -155,13 +166,25 @@ export const PLANS: Record<"free" | "pro", PlanConfig> = {
     name: "Free",
     price: 0,
     credits: 10,
-    features: ["10 credits/month", "All 5 AI tools", "Basic support", "History (30 days)"],
+    features: [
+      "10 credits/month",
+      "All 5 AI tools",
+      "Basic support",
+      "History (30 days)",
+    ],
   },
   pro: {
     name: "Pro",
     price: 29,
     credits: 500,
-    features: ["500 credits/month", "All 5 AI tools", "Priority support", "Unlimited history", "Advanced analytics", "API access"],
+    features: [
+      "500 credits/month",
+      "All 5 AI tools",
+      "Priority support",
+      "Unlimited history",
+      "Advanced analytics",
+      "API access",
+    ],
   },
 };
 
@@ -182,6 +205,9 @@ export interface AdminStats {
   totalGenerations: number;
   activeSubscriptions: number;
   recentUsers: IUser[];
-  revenueByMonth: { month: string; revenue: number }[];
+  revenueByMonth: {
+    month: string;
+    revenue: number;
+  }[];
   generationsByTool: Record<ToolType, number>;
 }
