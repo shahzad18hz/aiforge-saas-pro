@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import { User, History, Usage } from "@/lib/models";
 import { getMonthKey } from "@/lib/utils";
-import { PLANS } from "@/types";
+import { PLANS, IUser, IUsage } from "@/types";
 
 export async function GET(req: NextRequest) {
   try {
@@ -19,16 +19,19 @@ export async function GET(req: NextRequest) {
 
     await connectDB();
 
-    const [user, monthUsage, totalHistoryCount] = await Promise.all([
-      User.findById(session.user.id),
+    const [dbUser, dbUsage, totalHistoryCount] = await Promise.all([
+      User.findById(session.user.id).lean(),
       Usage.findOne({
         userId: session.user.id,
         month: getMonthKey(),
-      }),
+      }).lean(),
       History.countDocuments({
         userId: session.user.id,
       }),
     ]);
+
+    const user = dbUser as IUser | null;
+    const monthUsage = dbUsage as IUsage | null;
 
     if (!user) {
       return NextResponse.json(
@@ -37,8 +40,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // ✅ Fix TypeScript Error
-    const plan = (user.plan as keyof typeof PLANS) || "free";
+    const plan = (user.plan === "pro" ? "pro" : "free") as keyof typeof PLANS;
     const planCredits = PLANS[plan].credits;
 
     return NextResponse.json({
@@ -50,7 +52,14 @@ export async function GET(req: NextRequest) {
         totalGenerations: totalHistoryCount,
         thisMonthGenerations: monthUsage?.generationsCount ?? 0,
         plan,
-        toolBreakdown: monthUsage?.toolBreakdown ?? {},
+        toolBreakdown:
+          monthUsage?.toolBreakdown ?? {
+            blog: 0,
+            "product-description": 0,
+            "social-media": 0,
+            email: 0,
+            "seo-meta": 0,
+          },
       },
     });
   } catch (error) {
